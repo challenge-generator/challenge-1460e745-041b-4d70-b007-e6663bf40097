@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LoanRequest {
+  id                       String           @id @default(uuid())
+  operationNumber          String           @unique
+  channel                  String
+  requestedAmount          Decimal          @db.Decimal(15, 2)
+  termMonths               Int
+  status                   LoanRequestStatus @default(PENDING_ANTIFRAUD)
+  applicantName            String
+  applicantEmail           String
+  applicantDocumentNumber  String
+  applicantPhone           String?
+  antifraudResult          String?
+  antifraudCheckedAt       DateTime?
+  riskBureauResult         String?
+  riskBureauCheckedAt      DateTime?
+  creditOriginatorResult   String?
+  creditOriginatorCheckedAt DateTime?
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  @@index([operationNumber, channel])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum LoanRequestStatus {
+  PENDING_ANTIFRAUD
+  ANTIFRAUD_APPROVED
+  ANTIFRAUD_REJECTED
+  PENDING_RISK_BUREAU
+  RISK_BUREAU_APPROVED
+  RISK_BUREAU_REJECTED
+  PENDING_CREDIT_ORIGINATOR
+  CREDIT_ORIGINATOR_APPROVED
+  CREDIT_ORIGINATOR_REJECTED
+  APPROVED
+  REJECTED
+}
